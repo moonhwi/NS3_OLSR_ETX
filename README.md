@@ -16,17 +16,26 @@
 - [部署](#部署)
 
 ### 上手指南
-
-* todo
-
+* NS3项目主页地址：https://www.nsnam.org/  
+* NS3安装wiki：https://www.nsnam.org/wiki/Installation#Ubuntu.2FDebian.2FMint  
 
 #### 开发前的配置要求
 
-* todo
+* Ubuntu 20.04
+* NS-3.33
+* 内存>=2G 
+#在安装目录中运行
+* 可以利用Visual Studio Code的Remote-Development插件实现远程开发，方便调试
 
 #### **安装步骤**
 
-* todo
+* 首先根据NS3安装wiki在服务器端或Ubuntu客户端安装好NS3
+* 下载本项目源码到NS3安装目录，替换所有相同目录的同名文件。
+* 在NS3安装目录的终端中输入  
+```python
+#在安装目录的终端中运行
+sudo ./waf --run scratch/simple-olsr.cc 
+```
 
 ### 文件目录说明
 
@@ -50,8 +59,46 @@
     │   └── simple-point-to-point-olsr.tr
     ├── src
     │   ├── olsr
-
+* scratch文件夹存放运行的脚本文件
+* src/olsr目录中包含了对于olsr协议源码的修改，增加了ETX度量
 
 ### 部署
-* todo
+* 运行后效果图
+<html>
+<style>
+    .mac {
+        width:10px;
+        height:10px;
+        border-radius:5px;
+        float:left;
+        margin:10px 0 0 5px;
+    }
+    .b1 {
+        background:#E0443E;
+        margin-left: 10px;
+    }
+    .b2 { background:#DEA123; }
+    .b3 { background:#1AAB29; }
+    .warpper{
+        background:#121212;
+        border-radius:5px;
+        width:630px;
+    }
+</style>
+<div class="warpper">
+    <div class="mac b1"></div>
+    <div class="mac b2"></div>
+    <div class="mac b3"></div>
+<div>
+<br>
+</html>
+
+```Shell
+limenghui@limenghui-TianYi510Pro-18ICB:~/NS3/ns-allinone-3.33/ns-3.33$ sudo ./waf --run scratch/simple-olsr.cc     
+Waf: Entering directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'  
+Waf: Leaving directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'  
+Build commands will be stored in build/compile_commands.json  
+'build' finished successfully (1.008s)   
+```
+
 
