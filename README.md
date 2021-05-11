@@ -64,35 +64,6 @@ sudo ./waf --run scratch/simple-olsr.cc
 
 ### 部署
 * 运行后效果图
-<html>
-<style>
-    .mac {
-        width:10px;
-        height:10px;
-        border-radius:5px;
-        float:left;
-        margin:10px 0 0 5px;
-    }
-    .b1 {
-        background:#E0443E;
-        margin-left: 10px;
-    }
-    .b2 { background:#DEA123; }
-    .b3 { background:#1AAB29; }
-    .warpper{
-        background:#121212;
-        border-radius:5px;
-        width:630px;
-    }
-</style>
-<div class="warpper">
-    <div class="mac b1"></div>
-    <div class="mac b2"></div>
-    <div class="mac b3"></div>
-<div>
-<br>
-</html>
-
 ```Shell
 limenghui@limenghui-TianYi510Pro-18ICB:~/NS3/ns-allinone-3.33/ns-3.33$ sudo ./waf --run scratch/simple-olsr.cc     
 Waf: Entering directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'  
