@@ -1,0 +1,8 @@
+# Ignore everything on scratch by default, except the provided examples
+/*
+!.gitignore
+!*.cc
+!subdir
+subdir/*
+!subdir/*.cc
+

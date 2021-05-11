@@ -1,0 +1,7 @@
+/*
+!src
+src/*
+!src/olsr/
+!scratch
+!simple-olsr
+!.gitignore
