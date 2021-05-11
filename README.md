@@ -2,7 +2,9 @@
 
 # NS3_OLSR_ETX
 
-This program aims to update olsr protocol based on ETX metrix.
+本项目旨在将ETX度量融合进OLSR路由，通过NS3仿真平台实现MRMC的路由功能验证。  
+参考文献：  
+*De Couto, D. S., Aguayo, D., Bicket, J., & Morris, R. (2003, September). A high-throughput path metric for multi-hop wireless routing. In Proceedings of the 9th annual international conference on Mobile computing and networking (pp. 134-146).*
 
  
 ## 目录
@@ -28,160 +30,27 @@ This program aims to update olsr protocol based on ETX metrix.
 
 ### 文件目录说明
 
-.
-├── AUTHORS
-├── bindings
-│   └── python
-├── build
-│   ├── bindings
-│   ├── build-status.py
-│   ├── c4che
-│   ├── compile_commands.json
-│   ├── config.log
-│   ├── examples
-│   ├── lib
-│   ├── ns3
-│   ├── scratch
-│   ├── src
-│   └── utils
-├── CHANGES.html
-├── contrib
-│   └── wscript
-├── CONTRIBUTING.md
-├── doc
-│   ├── build.txt
-│   ├── codingstd.txt
-│   ├── contributing.txt
-│   ├── doxygen.conf
-│   ├── doxygen.warnings.report.sh
-│   ├── main.h
-│   ├── manual
-│   ├── models
-│   ├── modules
-│   ├── namespace-2.dia
-│   ├── namespace-2.png
-│   ├── ns3_html_theme
-│   ├── release_steps.txt
-│   └── tutorial
-├── examples
-│   ├── channel-models
-│   ├── energy
-│   ├── error-model
-│   ├── ipv6
-│   ├── matrix-topology
-│   ├── naming
-│   ├── realtime
-│   ├── routing
-│   ├── socket
-│   ├── stats
-│   ├── tcp
-│   ├── traffic-control
-│   ├── tutorial
-│   ├── udp
-│   ├── udp-client-server
-│   └── wireless
-├── LICENSE
-├── Makefile
-├── __pycache__
-│   ├── utils.cpython-38.pyc
-│   └── wutils.cpython-38.pyc
-├── README.md
-├── RELEASE_NOTES
-├── <font color=#008000>**scratch**</font>
-│   ├── scratch-simulator.cc
-│   ├── simple-olsr.cc
-│   └── subdir
-├── <font color=#008000>**simple-olsr**</font>
-│   ├── routes.route
-│   ├── simple-point-to-point-olsr-0-1.pcap
-│   ├── simple-point-to-point-olsr-1-1.pcap
-│   ├── simple-point-to-point-olsr-2-1.pcap
-│   ├── simple-point-to-point-olsr-2-2.pcap
-│   ├── simple-point-to-point-olsr-2-3.pcap
-│   ├── simple-point-to-point-olsr-3-1.pcap
-│   ├── simple-point-to-point-olsr-3-2.pcap
-│   ├── simple-point-to-point-olsr-4-1.pcap
-│   └── simple-point-to-point-olsr.tr
-├── src
-│   ├── antenna
-│   ├── aodv
-│   ├── applications
-│   ├── bridge
-│   ├── brite
-│   ├── buildings
-│   ├── click
-│   ├── config-store
-│   ├── core
-│   ├── csma
-│   ├── csma-layout
-│   ├── dsdv
-│   ├── dsr
-│   ├── energy
-│   ├── fd-net-device
-│   ├── flow-monitor
-│   ├── internet
-│   ├── internet-apps
-│   ├── lr-wpan
-│   ├── lte
-│   ├── mesh
-│   ├── mobility
-│   ├── mpi
-│   ├── netanim
-│   ├── network
-│   ├── nix-vector-routing
-│   ├── <font color=#008000>**olsr**</font>
-│   ├── openflow
-│   ├── point-to-point
-│   ├── point-to-point-layout
-│   ├── propagation
-│   ├── sixlowpan
-│   ├── spectrum
-│   ├── stats
-│   ├── tap-bridge
-│   ├── test
-│   ├── topology-read
-│   ├── traffic-control
-│   ├── uan
-│   ├── virtual-net-device
-│   ├── visualizer
-│   ├── wave
-│   ├── wifi
-│   ├── wimax
-│   └── wscript
-├── test.py
-├── testpy.supp
-├── utils
-│   ├── bench-packets.cc
-│   ├── bench-simulator.cc
-│   ├── check-style.py
-│   ├── coverity-report.sh
-│   ├── create-module.py
-│   ├── generate-distributions.pl
-│   ├── grid.py
-│   ├── print-introspected-doxygen.cc
-│   ├── python-unit-tests.py
-│   ├── rescale-pdf.sh
-│   ├── run-examples-with-full-logging.sh
-│   ├── test-runner.cc
-│   ├── tests
-│   ├── utils.h
-│   └── wscript
-├── utils.py
-├── VERSION
-├── waf
-├── waf.bat
-├── waf-tools
-│   ├── boost.py
-│   ├── cflags.py
-│   ├── clang_compilation_database.py
-│   ├── command.py
-│   ├── misc.py
-│   ├── __pycache__
-│   ├── relocation.py
-│   ├── shellcmd.py
-│   └── versioning.py
-├── wscript
-└── wutils.py
+
+
+    filetree 
+    ├── scratch
+    │   ├── scratch-simulator.cc
+    │   ├── simple-olsr.cc
+    │   └── subdir
+    ├── simple-olsr
+    │   ├── routes.route
+    │   ├── simple-point-to-point-olsr-0-1.pcap
+    │   ├── simple-point-to-point-olsr-1-1.pcap
+    │   ├── simple-point-to-point-olsr-2-1.pcap
+    │      ├── simple-point-to-point-olsr-2-2.pcap
+    │   ├── simple-point-to-point-olsr-2-3.pcap
+    │   ├── simple-point-to-point-olsr-3-1.pcap
+    │   ├── simple-point-to-point-olsr-3-2.pcap
+    │   ├── simple-point-to-point-olsr-4-1.pcap
+    │   └── simple-point-to-point-olsr.tr
+    ├── src
+    │   ├── olsr
+
 
 ### 部署
 * todo
