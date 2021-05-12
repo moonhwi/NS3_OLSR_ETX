@@ -19,7 +19,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE("SimplePointToPointOlsrExample");
+NS_LOG_COMPONENT_DEFINE("simpleWifiMeshNetwork");
 
 int main(int argc, char *argv[])
 {
