@@ -24,7 +24,6 @@
 * Ubuntu 20.04
 * NS-3.33
 * 内存>=2G 
-#在安装目录中运行
 * 可以利用Visual Studio Code的Remote-Development插件实现远程开发，方便调试
 
 #### **安装步骤**
@@ -45,6 +44,7 @@ sudo ./waf --run scratch/simple-olsr.cc
     ├── scratch
     │   ├── scratch-simulator.cc
     │   ├── simple-olsr.cc
+    │   ├── unknown.cc 
     │   └── subdir
     ├── simple-olsr
     │   ├── routes.route
@@ -58,7 +58,7 @@ sudo ./waf --run scratch/simple-olsr.cc
     │   ├── simple-point-to-point-olsr-4-1.pcap
     │   └── simple-point-to-point-olsr.tr
     ├── src
-    │   ├── olsr
+    │   └── olsr
 * scratch文件夹存放运行的脚本文件
 * src/olsr目录中包含了对于olsr协议源码的修改，增加了ETX度量
 
