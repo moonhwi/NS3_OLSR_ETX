@@ -59,17 +59,36 @@ sudo ./waf --run scratch/simple-olsr.cc
     │   └── simple-point-to-point-olsr.tr
     ├── src
     │   └── olsr
-* scratch文件夹存放运行的脚本文件
+* scratch文件夹存放运行的脚本文件  
+  1.*simple-olsr*：本脚本描述了简单的P2P网络，用于验证增加了etx度量后的olsr路由协议的功能正确性。  
+  2.*unknown*：本脚本描述了简单的spectrumwifiphy模型下的mesh网络，使用Friis衰落模型与网格移动模型控制网络拓扑。
 * src/olsr目录中包含了对于olsr协议源码的修改，增加了ETX度量
 
 ### 部署
-* 运行后效果图
+**运行后效果图**
+* simple-olsr 脚本
 ```Shell
 limenghui@limenghui-TianYi510Pro-18ICB:~/NS3/ns-allinone-3.33/ns-3.33$ sudo ./waf --run scratch/simple-olsr.cc     
 Waf: Entering directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'  
 Waf: Leaving directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'  
 Build commands will be stored in build/compile_commands.json  
 'build' finished successfully (1.008s)   
+```
+* unknown 脚本
+```Shell
+limenghui@limenghui-TianYi510Pro-18ICB:~/NS3/ns-allinone-3.33/ns-3.33$ sudo ./waf --run scratch/unknown.cc 
+Waf: Entering directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'
+Waf: Leaving directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (0.812s)
+Run Simulation.
+Flow 1 (195.1.2.4 -> 195.1.2.1)
+  Tx Packets:   1953
+  Rx Packets:   1953
+  last Delay:   0.000110771
+  delay: 0.000117861 s
+  lostpackets: 0 
+  Throughput: 0.805694 Mbps
 ```
 
 
