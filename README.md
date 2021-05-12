@@ -44,7 +44,7 @@ sudo ./waf --run scratch/simple-olsr.cc
     ├── scratch
     │   ├── scratch-simulator.cc
     │   ├── simple-olsr.cc
-    │   ├── unknown.cc 
+    │   ├── simple-wifi-mesh.cc 
     │   └── subdir
     ├── simple-olsr
     │   ├── routes.route
