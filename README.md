@@ -74,7 +74,7 @@ Waf: Leaving directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'
 Build commands will be stored in build/compile_commands.json  
 'build' finished successfully (1.008s)   
 ```
-* unknown 脚本
+* simple-wifi-mesh 脚本
 ```Shell
 limenghui@limenghui-TianYi510Pro-18ICB:~/NS3/ns-allinone-3.33/ns-3.33$ sudo ./waf --run scratch/unknown.cc 
 Waf: Entering directory `/home/limenghui/NS3/ns-allinone-3.33/ns-3.33/build'
