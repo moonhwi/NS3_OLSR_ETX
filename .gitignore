@@ -6,3 +6,4 @@ src/*
 !simple-olsr
 !.gitignore
 !README.md
+!log.txt

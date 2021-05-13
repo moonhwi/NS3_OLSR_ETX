@@ -301,6 +301,7 @@ namespace ns3
     void
     RoutingProtocol::DoInitialize()
     {
+      Simulator::Schedule(Seconds(1), &RoutingProtocol::printEtxDataTable, this);
       if (m_mainAddress == Ipv4Address())
       {
         Ipv4Address loopback("127.0.0.1");
@@ -1011,7 +1012,7 @@ namespace ns3
             NS_LOG_LOGIC("no R_dest_addr is equal to the main address of the neighbor "
                          "=> adding additional routing entry");
             // 这里是为一条邻居添加对应的ETX值
-            float etx = 1;
+            float etx = 100;
             for (std::vector<EtxData>::iterator it3 = m_EtxDataTable.begin(); it3 != m_EtxDataTable.end(); it++)
             {
               if (it3->srcAddr == lt->neighborIfaceAddr && it3->destAddr == lt->localIfaceAddr)
@@ -1019,11 +1020,11 @@ namespace ns3
                 etx = it3->etx;
                 break;
               }
-              else if (it3->destAddr == lt->neighborIfaceAddr && it3->srcAddr == lt->localIfaceAddr)
-              {
-                etx = it3->etx;
-                break;
-              }
+              // else if (it3->destAddr == lt->neighborIfaceAddr && it3->srcAddr == lt->localIfaceAddr)
+              // {
+              //   etx = it3->etx;
+              //   break;
+              // }
             }
             AddEntry(nb_tuple.neighborMainAddr, lt->neighborIfaceAddr, lt->localIfaceAddr, 1, etx);
           }
@@ -1096,17 +1097,35 @@ namespace ns3
         {
           NS_LOG_LOGIC("Adding routing entry for two-hop neighbor.");
           float etx = entry.etxDistance;
-          float minEtxToBeSum = 1;
-          for(std::vector<EtxData>::iterator etxIter = m_EtxDataTable.begin();
-              etxIter != m_EtxDataTable.end();
-              etxIter++)
+          float minEtxToBeSum = 100;
+          // bool found = false;
+          for (std::vector<EtxData>::iterator etxIter = m_EtxDataTable.begin();
+               etxIter != m_EtxDataTable.end();
+               etxIter++)
           {
-            if ((etxIter->srcAddr == GetMainAddress(entry.nextAddr) && etxIter->destAddr == GetMainAddress(nb2hop_tuple.twoHopNeighborAddr)) 
-            || (etxIter->destAddr == GetMainAddress(entry.nextAddr)  && etxIter->srcAddr == GetMainAddress(nb2hop_tuple.twoHopNeighborAddr)))
+            if (etxIter->srcAddr == GetMainAddress(entry.nextAddr) && etxIter->destAddr == GetMainAddress(nb2hop_tuple.twoHopNeighborAddr))
             {
               minEtxToBeSum = std::min(minEtxToBeSum, etxIter->etx);
+              break;
             }
           }
+          // if (minEtxToBeSum == 100)
+          // {
+          //   std::cout << "begin print"
+          //             << "\n";
+          //   std::cout << GetMainAddress(entry.nextAddr) << "\t" << GetMainAddress(nb2hop_tuple.twoHopNeighborAddr) << "\n";
+
+          //   std::cout << entry.nextAddr << "\t" << nb2hop_tuple.twoHopNeighborAddr << "\n";
+          //   for (std::vector<EtxData>::iterator etxIter = m_EtxDataTable.begin();
+          //        etxIter != m_EtxDataTable.end();
+          //        etxIter++)
+          //   {
+          //     std::cout << etxIter->srcAddr << "\t" << etxIter->destAddr << "\t" << etxIter->etx << "\n";
+          //   }
+          //   std::cout << "end print"
+          //             << "\n";
+          // }
+
           etx += minEtxToBeSum;
           AddEntry(nb2hop_tuple.twoHopNeighborAddr, entry.nextAddr, entry.interface, 2, etx);
         }
@@ -1360,7 +1379,7 @@ namespace ns3
       // MUST be removed from the topology set.
       m_state.EraseOlderTopologyTuples(msg.GetOriginatorAddress(), tc.ansn);
       std::vector<uint32_t> etxData = tc.EtxData;
-            // 4. For each of the advertised neighbor main address received in
+      // 4. For each of the advertised neighbor main address received in
       // the TC message:
       for (std::vector<Ipv4Address>::const_iterator i = tc.neighborAddresses.begin();
            i != tc.neighborAddresses.end(); i++)
@@ -1376,6 +1395,9 @@ namespace ns3
         if (topologyTuple != NULL)
         {
           topologyTuple->expirationTime = now + msg.GetVTime();
+          topologyTuple->Etx = (float)1 / tc.EtxData[std::distance(tc.neighborAddresses.begin(), i)];
+          updateEtxDataTable(GetMainAddress(addr), GetMainAddress(msg.GetOriginatorAddress()), topologyTuple->Etx);
+          updateEtxDataTable((addr), (msg.GetOriginatorAddress()), topologyTuple->Etx);
         }
         else
         {
@@ -1390,7 +1412,9 @@ namespace ns3
           topologyTuple.lastAddr = msg.GetOriginatorAddress();
           topologyTuple.sequenceNumber = tc.ansn;
           topologyTuple.expirationTime = now + msg.GetVTime();
-          topologyTuple.Etx = (float)1/tc.EtxData[std::distance(tc.neighborAddresses.begin(),i)];
+          topologyTuple.Etx = (float)1 / tc.EtxData[std::distance(tc.neighborAddresses.begin(), i)];
+          updateEtxDataTable(GetMainAddress(addr), GetMainAddress(msg.GetOriginatorAddress()), topologyTuple.Etx);
+          updateEtxDataTable((addr), (msg.GetOriginatorAddress()), topologyTuple.Etx);
           AddTopologyTuple(topologyTuple);
 
           // Schedules topology tuple deletion
@@ -1399,7 +1423,6 @@ namespace ns3
                                              topologyTuple.destAddr, topologyTuple.lastAddr));
         }
       }
-
 #ifdef NS3_LOG_ENABLE
       {
         const TopologySet &topology = m_state.GetTopologySet();
@@ -1782,7 +1805,18 @@ namespace ns3
         {
           if (m_HelloReceived.find(*it) == m_HelloReceived.end())
           {
-            helloReceived.push_back(0);//该条链路并不能直接通信，而是需要通过其他接口，因此helloReceived设置为0
+            // 该条链路并不能直接通信，而是需要通过其他接口，因此helloReceived设置为与该节点的其他最优ETX，
+            // 即收到的最大hello包的数目来表示
+            uint32_t maxEtx = 0;
+            for (std::vector<Ipv4Address>::iterator itt = linkMessage.neighborInterfaceAddresses.begin();
+                 itt != linkMessage.neighborInterfaceAddresses.end(); itt++)
+            {
+              if (m_HelloReceived.find(*itt) != m_HelloReceived.end())
+              {
+                maxEtx = std::max(maxEtx, m_HelloReceived.find(*itt)->second);
+              }
+            }
+            helloReceived.push_back(maxEtx);
           }
           else
             helloReceived.push_back((m_HelloReceived.find(*it)->second));
@@ -1791,6 +1825,7 @@ namespace ns3
                                         helloReceived.end());
         linkMessages.push_back(linkMessage);
       }
+      
       NS_LOG_DEBUG("OLSR HELLO message size: " << int(msg.GetSerializedSize()) << " (with "
                                                << int(linkMessages.size()) << " link messages)");
       QueueMessage(msg, JITTER);
@@ -1823,16 +1858,18 @@ namespace ns3
       {
         std::map<Ipv4Address, uint32_t> m_helloReceived = m_state.GetHelloReceived();
         uint32_t minEtx = 0xffff;
-        for(std::map<Ipv4Address, uint32_t>::iterator it = m_helloReceived.begin();
-            it !=m_helloReceived.end();
-            it++)
+        for (std::map<Ipv4Address, uint32_t>::iterator it = m_helloReceived.begin();
+             it != m_helloReceived.end();
+             it++)
         {
-            if(GetMainAddress(it->first) == mprsel_tuple->mainAddr){
-              minEtx = std::min(minEtx, it->second);
-            }
+          if (GetMainAddress(it->first) == mprsel_tuple->mainAddr)
+          {
+            minEtx = std::min(minEtx, it->second);
+          }
         }
         tc.EtxData.push_back(minEtx);
       }
+      std::cout<<"sending TC"<<"\t"<< this->GetObject<Node>()->GetId()<<"\n";
       QueueMessage(msg, JITTER);
     }
 
@@ -2005,6 +2042,7 @@ namespace ns3
                                  const olsr::MessageHeader::Hello &hello,
                                  const Ipv4Address &receiverIface, const Ipv4Address &senderIface)
     {
+
       Time now = Simulator::Now();
       bool updated = false;
       bool created = false;
@@ -2043,24 +2081,27 @@ namespace ns3
         updated = true;
       }
       link_tuple->Etx = (float)1 / m_HelloReceived[senderIface];
-      updateEtxDataTable(GetMainAddress(senderIface) ,GetMainAddress(receiverIface), (float)1 / (m_HelloReceived[senderIface]));
+      updateEtxDataTable(GetMainAddress(senderIface), GetMainAddress(receiverIface), (float)1 / (m_HelloReceived[senderIface]));
       link_tuple->asymTime = now + msg.GetVTime();
+      std::cout<<"print hello from  "<<senderIface<<"--->"<<receiverIface<<"\n";
       for (std::vector<olsr::MessageHeader::Hello::LinkMessage>::const_iterator linkMessage =
                hello.linkMessages.begin();
            linkMessage != hello.linkMessages.end(); linkMessage++)
       {
-        int lt = linkMessage->linkCode & 0x03;        // Link Type
-        int nt = (linkMessage->linkCode >> 2) & 0x03; // Neighbor Type
-        std::vector<uint32_t> neiborEtx = linkMessage->neighborEtxs;  //Neighbor hello received from senderIface -lmh
+        int lt = linkMessage->linkCode & 0x03;                       // Link Type
+        int nt = (linkMessage->linkCode >> 2) & 0x03;                // Neighbor Type
+        std::vector<uint32_t> neiborEtx = linkMessage->neighborEtxs; //Neighbor hello received from senderIface -lmh
         std::vector<Ipv4Address> twoHopNeiborAddress = linkMessage->neighborInterfaceAddresses;
         for (uint32_t i = 0; i < neiborEtx.size(); i++) //遍历所有的邻居链路与对应的ETX值
         {
-          if(neiborEtx[i]!=0)
+          if (neiborEtx[i] != 0)
           {
             updateEtxDataTable(GetMainAddress(senderIface), GetMainAddress(twoHopNeiborAddress[i]), (float)1 / neiborEtx[i]);
-            updateEtxDataTable(GetMainAddress(twoHopNeiborAddress[i]), GetMainAddress(senderIface), (float)1 / neiborEtx[i]);
-          }          
+            updateEtxDataTable(senderIface, twoHopNeiborAddress[i], (float)1 / neiborEtx[i]);
+          }
+          std::cout << senderIface << "\t" << twoHopNeiborAddress[i] << "\t" << neiborEtx[i]<<"\n";
         }
+        
 #ifdef NS3_LOG_ENABLE
         const char *linkTypeName;
         switch (lt)
@@ -2501,7 +2542,8 @@ OLSR::mac_failed (Ptr<Packet> p)
       {
         if (it->srcAddr == src && it->destAddr == dest)
         {
-          it->etx = std::min(etx,it->etx);
+          it->etx = etx;
+          it->updateTime = Simulator::Now().GetSeconds();
           find = true;
           break;
         }
@@ -2512,11 +2554,23 @@ OLSR::mac_failed (Ptr<Packet> p)
         etxData.srcAddr = src;
         etxData.destAddr = dest;
         etxData.etx = etx;
+        etxData.updateTime = Simulator::Now().GetSeconds();
         m_EtxDataTable.insert(m_EtxDataTable.end(), etxData);
       }
     }
-    void
-    RoutingProtocol::AddNeighborTuple(const NeighborTuple &tuple)
+
+    void RoutingProtocol::printEtxDataTable()
+    {
+      std::cout<<"print EtxDataTable"<<"\t"<<this->GetObject<Node>()->GetId()<<"\n";
+      for (std::vector<EtxData>::iterator it = m_EtxDataTable.begin();it != m_EtxDataTable.end(); it++)
+      {
+        std::cout<<it->srcAddr<<"\t"<<it->destAddr<<"\t"<<it->etx<<"\t"<<it->updateTime<<"\n";
+      }
+      std::cout << "end print EtxDataTable"
+                << "\n";
+      Simulator::Schedule(Seconds(1), &RoutingProtocol::printEtxDataTable, this);
+    } 
+    void RoutingProtocol::AddNeighborTuple(const NeighborTuple &tuple)
     {
       //   debug("%f: Node %d adds neighbor tuple: nb_addr = %d status = %s\n",
       //         Simulator::Now (),

@@ -74,6 +74,7 @@ struct EtxData
 {
   Ipv4Address srcAddr;
   Ipv4Address destAddr;
+  double updateTime;
   float etx;
 };
 
@@ -823,11 +824,16 @@ private:
    * a new received HELLO message.
    * \param src the address of the interface where the message was sent from.
    * \param dest the address of the interface where the message was received.
+   * \param updateTime the updateTime of this etx data.
    * \param ext the etx distance of the link src->dest.
    */
   void updateEtxDataTable(const Ipv4Address &src,
                               const Ipv4Address &dest,
                               float etx);
+  /**
+   * \brief print the EtxDataTable.
+  */
+  void printEtxDataTable();
 
   Ipv4Address m_mainAddress; //!< the node main address.
 
